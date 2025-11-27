@@ -210,48 +210,91 @@ def load_model(model_path):
     Returns:
         Loaded Keras model
     """
+    import warnings
+    warnings.filterwarnings('ignore')
+    
+    # Custom objects for legacy model compatibility
+    custom_objects = {
+        'DepthwiseConv2D': keras.layers.DepthwiseConv2D,
+        'relu6': keras.activations.relu,
+    }
+    
     try:
-        # Try loading with compile=False to avoid optimizer issues
-        model = keras.models.load_model(model_path, compile=False)
+        # Method 1: Try loading with compile=False
+        print("Attempting to load model (method 1: compile=False)...")
+        model = keras.models.load_model(
+            model_path, 
+            compile=False,
+            custom_objects=custom_objects
+        )
         
-        # Recompile the model with current TensorFlow version
+        # Recompile the model
         model.compile(
             optimizer=keras.optimizers.Adam(learning_rate=0.001),
             loss='categorical_crossentropy',
             metrics=['accuracy']
         )
         
+        print("✓ Model loaded successfully (method 1)")
         return model
-    except Exception as e:
-        print(f"Error loading model with standard method: {e}")
-        print("Attempting to load with safe mode...")
         
-        # Try loading with safe_mode (TF 2.16+) or custom_objects
+    except Exception as e1:
+        print(f"Method 1 failed: {e1}")
+        
         try:
-            model = keras.models.load_model(
-                model_path,
-                compile=False,
-                safe_mode=False  # Disable safe mode for legacy models
-            )
+            # Method 2: Load weights only
+            print("Attempting to load model (method 2: weights only)...")
             
-            model.compile(
-                optimizer=keras.optimizers.Adam(learning_rate=0.001),
-                loss='categorical_crossentropy',
-                metrics=['accuracy']
-            )
+            # Try to rebuild the model architecture and load weights
+            from tensorflow.keras.applications import MobileNetV2
             
+            # Read model metadata to get num_classes
+            metadata_path = os.path.join(os.path.dirname(model_path), 'model_metadata.json')
+            if os.path.exists(metadata_path):
+                with open(metadata_path, 'r') as f:
+                    metadata = json.load(f)
+                    num_classes = metadata.get('num_classes', 9)
+            else:
+                num_classes = 9  # Default to 9 classes
+            
+            # Rebuild model architecture
+            model = build_mobilenet_classifier(num_classes=num_classes)
+            
+            # Load weights
+            model.load_weights(model_path)
+            
+            print("✓ Model loaded successfully (method 2: weights)")
             return model
-        except TypeError:
-            # safe_mode not available in older TensorFlow versions
-            model = keras.models.load_model(model_path, compile=False)
             
-            model.compile(
-                optimizer=keras.optimizers.Adam(learning_rate=0.001),
-                loss='categorical_crossentropy',
-                metrics=['accuracy']
-            )
+        except Exception as e2:
+            print(f"Method 2 failed: {e2}")
             
-            return model
+            try:
+                # Method 3: Use TF SavedModel format compatibility
+                print("Attempting to load model (method 3: SavedModel)...")
+                
+                # Convert .h5 to TF format temporarily if needed
+                temp_dir = os.path.join(os.path.dirname(model_path), 'temp_model')
+                
+                # Try loading with tf.keras instead of keras
+                model = tf.keras.models.load_model(
+                    model_path,
+                    compile=False,
+                    custom_objects=custom_objects
+                )
+                
+                model.compile(
+                    optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
+                    loss='categorical_crossentropy',
+                    metrics=['accuracy']
+                )
+                
+                print("✓ Model loaded successfully (method 3)")
+                return model
+                
+            except Exception as e3:
+                print(f"Method 3 failed: {e3}")
+                raise Exception(f"All model loading methods failed. Last error: {e3}")
 
 
 def save_model(model, model_path):
