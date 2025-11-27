@@ -1,0 +1,60 @@
+{
+  "model_name": "Crop Pest Detection CNN",
+  "created_date": "2025-11-27T17:41:58.772737",
+  "classes": [
+    "aphids",
+    "armyworm",
+    "beetle",
+    "bollworm",
+    "grasshopper",
+    "mites",
+    "mosquito",
+    "sawfly",
+    "stem_borer"
+  ],
+  "num_classes": 9,
+  "input_shape": [
+    224,
+    224,
+    3
+  ],
+  "architecture": "MobileNetV2 with Transfer Learning",
+  "framework": "TensorFlow/Keras",
+  "training_params": {
+    "initial_epochs": 50,
+    "fine_tune_epochs": 20,
+    "batch_size": 32,
+    "initial_lr": 0.001,
+    "fine_tune_lr": 1e-05,
+    "unfrozen_layers": 50,
+    "optimizer": "Adam",
+    "validation_split": 0.2
+  },
+  "architecture_details": {
+    "base_model": "MobileNetV2",
+    "dense_layers": [
+      512,
+      256
+    ],
+    "dropout_rates": [
+      0.5,
+      0.3,
+      0.2
+    ],
+    "batch_normalization": true,
+    "global_pooling": "GlobalAveragePooling2D"
+  },
+  "performance": {
+    "test_accuracy": 0.9155555367469788,
+    "test_precision": 0.9311926364898682,
+    "test_recall": 0.902222216129303,
+    "test_f1_score": 0.9164784905206214,
+    "test_loss": 0.2743772864341736
+  },
+  "improvements": {
+    "accuracy_gain": 2.222222089767456,
+    "precision_gain": -0.10107755661010742,
+    "recall_gain": 4.666668176651001,
+    "f1_score_gain": 2.424215706839372
+  }
+}
