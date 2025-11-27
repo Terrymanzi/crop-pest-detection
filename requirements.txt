@@ -1,7 +1,9 @@
-# Core ML/DL - Use tensorflow-cpu for Railway deployment (lighter and compatible)
-tensorflow-cpu>=2.13.0,<2.16.0
+# Core ML/DL - Use compatible TensorFlow version
+tensorflow-cpu>=2.13.0,<2.17.0
+keras>=2.13.0
 numpy>=1.24.0,<2.0.0
 pillow>=10.0.0
+h5py>=3.10.0
 
 # API Framework
 fastapi>=0.104.0

@@ -202,7 +202,7 @@ def fine_tune_model(model, train_generator, validation_generator,
 
 def load_model(model_path):
     """
-    Load a saved Keras model.
+    Load a saved Keras model with compatibility handling.
     
     Args:
         model_path: Path to the saved model file
@@ -210,7 +210,48 @@ def load_model(model_path):
     Returns:
         Loaded Keras model
     """
-    return keras.models.load_model(model_path)
+    try:
+        # Try loading with compile=False to avoid optimizer issues
+        model = keras.models.load_model(model_path, compile=False)
+        
+        # Recompile the model with current TensorFlow version
+        model.compile(
+            optimizer=keras.optimizers.Adam(learning_rate=0.001),
+            loss='categorical_crossentropy',
+            metrics=['accuracy']
+        )
+        
+        return model
+    except Exception as e:
+        print(f"Error loading model with standard method: {e}")
+        print("Attempting to load with safe mode...")
+        
+        # Try loading with safe_mode (TF 2.16+) or custom_objects
+        try:
+            model = keras.models.load_model(
+                model_path,
+                compile=False,
+                safe_mode=False  # Disable safe mode for legacy models
+            )
+            
+            model.compile(
+                optimizer=keras.optimizers.Adam(learning_rate=0.001),
+                loss='categorical_crossentropy',
+                metrics=['accuracy']
+            )
+            
+            return model
+        except TypeError:
+            # safe_mode not available in older TensorFlow versions
+            model = keras.models.load_model(model_path, compile=False)
+            
+            model.compile(
+                optimizer=keras.optimizers.Adam(learning_rate=0.001),
+                loss='categorical_crossentropy',
+                metrics=['accuracy']
+            )
+            
+            return model
 
 
 def save_model(model, model_path):
