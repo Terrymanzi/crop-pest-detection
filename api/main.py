@@ -18,6 +18,8 @@ import subprocess
 from pathlib import Path
 from typing import Optional
 
+import tensorflow as tf
+
 from fastapi import FastAPI, File, UploadFile, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -64,18 +66,31 @@ def load_model_and_classes():
     
     try:
         print("Loading model...")
-        if os.path.exists(MODEL_PATH):
-            MODEL = load_model(MODEL_PATH)
-            print(f"✓ Model loaded from: {MODEL_PATH}")
-        else:
-            # Fallback to non-finetuned model
-            fallback_path = os.path.join(MODELS_DIR, "crop_pest_model.h5")
-            if os.path.exists(fallback_path):
-                MODEL = load_model(fallback_path)
-                print(f"✓ Model loaded from fallback: {fallback_path}")
-            else:
-                print("⚠ No model found!")
-                return
+        print(f"TensorFlow version: {tf.__version__}")
+        
+        # Try multiple model files in order of preference
+        model_files = [
+            MODEL_PATH,  # crop_pest_model_finetuned.h5
+            os.path.join(MODELS_DIR, "crop_pest_model.h5"),  # fallback
+        ]
+        
+        model_loaded_successfully = False
+        for model_file in model_files:
+            if os.path.exists(model_file):
+                try:
+                    print(f"Attempting to load: {model_file}")
+                    MODEL = load_model(model_file)
+                    print(f"✓ Model loaded from: {model_file}")
+                    model_loaded_successfully = True
+                    break
+                except Exception as e:
+                    print(f"✗ Failed to load {model_file}: {e}")
+                    continue
+        
+        if not model_loaded_successfully:
+            print("⚠ No model could be loaded!")
+            MODEL_LOADED = False
+            return
         
         print("Loading class names...")
         CLASS_NAMES = load_class_names(CLASS_NAMES_PATH)
@@ -86,6 +101,8 @@ def load_model_and_classes():
         
     except Exception as e:
         print(f"✗ Error loading model: {e}")
+        import traceback
+        traceback.print_exc()
         MODEL_LOADED = False
 
 
