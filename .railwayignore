@@ -1,0 +1,62 @@
+# Python cache
+
+**pycache**/
+_.py[cod]
+_$py.class
+\*.so
+.Python
+
+# Virtual environments
+
+.env
+.venv
+venv/
+ENV/
+
+# Large data directories (not needed in production)
+
+data/train/
+data/test/
+
+# Development files
+
+notebook/
+tests/
+_.ipynb
+_.ipynb_checkpoints
+
+# UI files (deploy separately)
+
+ui/
+
+# Git
+
+.git/
+.gitignore
+
+# Documentation
+
+\*.md
+!README.md
+
+# Load testing
+
+locustfile.py
+
+# IDE
+
+.vscode/
+.idea/
+_.swp
+_.swo
+\*~
+
+# OS
+
+.DS_Store
+Thumbs.db
+
+# Logs
+
+\*.log
+logs/
