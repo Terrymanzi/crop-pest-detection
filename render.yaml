@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: crop-pest-detection-api
+    env: python
+    runtime: python-3.11
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "uvicorn api.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11
+      - key: MODEL_PATH
+        value: models/crop_pest_model_finetuned.h5
+      - key: CLASS_NAMES_PATH
+        value: models/class_names.json
+      - key: MODEL_FILE_ID
+        sync: false
+      - key: CLASS_NAMES_FILE_ID
+        sync: false
+    healthCheckPath: /health
