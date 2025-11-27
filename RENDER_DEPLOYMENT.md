@@ -13,6 +13,7 @@ Render handles large files better and supports custom build scripts.
 ## STEP 1: UPLOAD MODEL FILES TO GOOGLE DRIVE
 
 ### 1.1 Upload Your Models
+
 1. Go to [Google Drive](https://drive.google.com)
 2. Create a folder called `crop-pest-models`
 3. Upload these files:
@@ -20,7 +21,9 @@ Render handles large files better and supports custom build scripts.
    - `class_names.json` (from your local `models/` folder)
 
 ### 1.2 Get Shareable Links
+
 For each file:
+
 1. Right-click → **Get link** → **Anyone with the link can view**
 2. Copy the link (looks like: `https://drive.google.com/file/d/1ABC123XYZ/view?usp=sharing`)
 3. Extract the FILE_ID (the part between `/d/` and `/view`)
@@ -49,16 +52,19 @@ git push origin main
 ## STEP 3: DEPLOY ON RENDER
 
 ### 3.1 Sign Up / Login
+
 1. Go to [render.com](https://render.com)
 2. Click **"Get Started"** → **Sign up with GitHub**
 
 ### 3.2 Create New Web Service
+
 1. Click **"New +"** → **"Web Service"**
 2. Connect your GitHub account
 3. Select repository: **`crop-pest-detection`**
 4. Click **"Connect"**
 
 ### 3.3 Configure Service
+
 Fill in the following:
 
 **Name:** `crop-pest-detection-api`
@@ -76,6 +82,7 @@ Fill in the following:
 **Instance Type:** `Free` (or paid for better performance)
 
 ### 3.4 Add Environment Variables
+
 Click **"Advanced"** → **"Add Environment Variable"**
 
 Add these variables:
@@ -84,13 +91,14 @@ Add these variables:
 PYTHON_VERSION=3.11
 MODEL_PATH=models/crop_pest_model_finetuned.h5
 CLASS_NAMES_PATH=models/class_names.json
-MODEL_FILE_ID=YOUR_GOOGLE_DRIVE_FILE_ID_HERE
-CLASS_NAMES_FILE_ID=YOUR_CLASS_NAMES_FILE_ID_HERE
+MODEL_FILE_ID=1XYduXt8lOKPoCKT6nhYZUuo_GrCwCTWy
+CLASS_NAMES_FILE_ID=1u2xMlx3wOer2-e_Qo7oyru_Nwk9n4R7S
 ```
 
 **IMPORTANT:** Replace with your actual Google Drive FILE_IDs from Step 1.2
 
 ### 3.5 Deploy
+
 1. Click **"Create Web Service"**
 2. Wait 5-10 minutes for build and deployment
 3. Watch the logs for any errors
@@ -100,12 +108,15 @@ CLASS_NAMES_FILE_ID=YOUR_CLASS_NAMES_FILE_ID_HERE
 ## STEP 4: VERIFY DEPLOYMENT
 
 ### 4.1 Check Health Endpoint
+
 Once deployed, visit:
+
 ```
 https://your-app-name.onrender.com/health
 ```
 
 You should see:
+
 ```json
 {
   "status": "healthy",
@@ -117,7 +128,9 @@ You should see:
 ```
 
 ### 4.2 Test API Documentation
+
 Visit:
+
 ```
 https://your-app-name.onrender.com/docs
 ```
@@ -143,15 +156,18 @@ Update your UI's environment variable on Netlify:
 If you don't want to use Google Drive:
 
 ### Option A: Use GitHub Release
+
 1. Create a release on GitHub
 2. Attach model files to release
 3. Download from release URL in `download_models.py`
 
 ### Option B: Use Hugging Face Hub
+
 1. Upload models to Hugging Face: https://huggingface.co
 2. Use `huggingface_hub` library to download
 
 ### Option C: Reduce Model Size
+
 ```python
 # In your training script, save with compression
 model.save('model.h5', save_format='h5', compression='gzip')
@@ -161,13 +177,13 @@ model.save('model.h5', save_format='h5', compression='gzip')
 
 ## RENDER VS RAILWAY
 
-| Feature | Render | Railway |
-|---------|--------|---------|
-| Free Tier | 750 hours/month | $5 credit/month |
-| Large Files | Better support | Limited |
-| Build Time | 5-10 min | 2-5 min |
-| Cold Starts | ~30s (free tier) | Faster |
-| Custom Build | Excellent | Good |
+| Feature            | Render              | Railway          |
+| ------------------ | ------------------- | ---------------- |
+| Free Tier          | 750 hours/month     | $5 credit/month  |
+| Large Files        | Better support      | Limited          |
+| Build Time         | 5-10 min            | 2-5 min          |
+| Cold Starts        | ~30s (free tier)    | Faster           |
+| Custom Build       | Excellent           | Good             |
 | **Recommendation** | ✅ For large models | For smaller apps |
 
 ---
@@ -175,16 +191,19 @@ model.save('model.h5', save_format='h5', compression='gzip')
 ## TROUBLESHOOTING
 
 ### Build Fails
+
 - Check logs in Render dashboard
 - Ensure `build.sh` is executable
 - Verify Google Drive links are public
 
 ### Model Still Not Loading
+
 - Check environment variables are set correctly
 - Verify FILE_IDs are correct
 - Check Render logs for download errors
 
 ### Out of Memory
+
 - Upgrade to paid tier ($7/month)
 - Or use smaller model
 - Or optimize TensorFlow installation
