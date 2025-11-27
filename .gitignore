@@ -1,4 +1,18 @@
-/src
+# /src
 /COLAB_*.md
+/QUICKSTART.md
 /TRAINING*
 /HYPERPARAMETERS*
+/s*.bat
+/src/__pycache__/
+/ui/node_modules/
+/ui/build/
+/ui/dist/
+/ui/.env
+/ui/.env.local 
+/ui/.env.development.local
+/ui/.env.test.local
+/ui/.env.production.local
+/README_IMPLEMENTATION
+/QUICK_REFERENCE.md
+/IMLPEMENTATION_SUMMARY.md
